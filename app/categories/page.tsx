@@ -5,11 +5,13 @@ import { createClient } from '@/lib/supabase'
 import { AppLayout } from '@/components/AppLayout'
 import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
-import { Plus, Trash2, Edit2 } from 'lucide-react'
+import { Plus, Trash2, Edit2, Star } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Category {
   id: string
   name: string
+  is_important: boolean
   user_id: string
   created_at: string
 }
@@ -28,10 +30,20 @@ export default function CategoriesPage() {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
+      .order('is_important', { ascending: false })
       .order('name')
     
     if (data) setCategories(data)
     setLoading(false)
+  }
+
+  const handleToggleImportant = async (category: Category) => {
+    const { error } = await supabase
+      .from('categories')
+      .update({ is_important: !category.is_important })
+      .eq('id', category.id)
+
+    if (!error) fetchCategories()
   }
 
   useEffect(() => {
@@ -123,7 +135,19 @@ export default function CategoriesPage() {
                     </div>
                   ) : (
                     <>
-                      <span className="font-medium text-gray-900">{category.name}</span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleToggleImportant(category)}
+                          className={cn(
+                            "p-1 transition-colors",
+                            category.is_important ? "text-yellow-500 hover:text-yellow-600" : "text-gray-300 hover:text-gray-400"
+                          )}
+                          title={category.is_important ? "Rimuovi dai preferiti" : "Segna come preferito"}
+                        >
+                          <Star className={cn("h-5 w-5", category.is_important && "fill-current")} />
+                        </button>
+                        <span className="font-medium text-gray-900">{category.name}</span>
+                      </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {

@@ -32,7 +32,12 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase.from('categories').select('*').order('name')
+      const { data } = await supabase
+        .from('categories')
+        .select('*')
+        .order('is_important', { ascending: false })
+        .order('name')
+      
       if (data) setCategories(data)
     }
     fetchCategories()

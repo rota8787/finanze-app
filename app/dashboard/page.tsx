@@ -36,20 +36,15 @@ export default function DashboardPage() {
 
       allTransactions.forEach(t => {
         const amt = Number(t.amount)
-        if (t.type === 'income') {
-          balance += amt
-        } else {
-          balance -= amt
-        }
-
         const tDate = new Date(t.date)
+        
         if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
           if (t.type === 'income') income += amt
           else expenses += amt
         }
       })
 
-      setSummary({ balance, income, expenses })
+      setSummary({ balance: income - expenses, income, expenses })
     }
 
     // Fetch last 5 transactions
@@ -95,12 +90,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-gray-500">Saldo Totale</span>
+              <span className="text-sm font-medium text-gray-500">Saldo Mensile</span>
               <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
                 <Wallet className="h-5 w-5" />
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900">{formatCurrency(summary.balance)}</div>
+            <div className={cn(
+              "text-3xl font-bold",
+              summary.balance >= 0 ? "text-gray-900" : "text-red-600"
+            )}>
+              {formatCurrency(summary.balance)}
+            </div>
           </div>
 
           <div className="bg-white p-6 rounded-2xl border shadow-sm">

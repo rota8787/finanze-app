@@ -25,6 +25,7 @@ export default function ReportsPage() {
   const [pieData, setPieData] = useState<any[]>([])
   const [lineData, setLineData] = useState<any[]>([])
   const [monthlySummary, setMonthlySummary] = useState<any[]>([])
+  const [totals, setTotals] = useState({ income: 0, expense: 0, balance: 0 })
 
   const supabase = createClient()
 
@@ -38,13 +39,21 @@ export default function ReportsPage() {
     if (transactions) {
       // 1. Process Pie Data (Expenses by Category)
       const expensesByCategory: Record<string, number> = {}
+      let totalIncome = 0
+      let totalExpense = 0
+
       transactions.forEach(t => {
+        const amt = Number(t.amount)
         if (t.type === 'expense') {
           const catName = t.categories?.name || 'Senza Categoria'
-          expensesByCategory[catName] = (expensesByCategory[catName] || 0) + Number(t.amount)
+          expensesByCategory[catName] = (expensesByCategory[catName] || 0) + amt
+          totalExpense += amt
+        } else {
+          totalIncome += amt
         }
       })
       setPieData(Object.entries(expensesByCategory).map(([name, value]) => ({ name, value })))
+      setTotals({ income: totalIncome, expense: totalExpense, balance: totalIncome - totalExpense })
 
       // 2. Process Line Data (Trend) & Monthly Summary
       const monthlyData: Record<string, { month: string, income: number, expense: number, balance: number }> = {}
@@ -203,6 +212,19 @@ export default function ReportsPage() {
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900 uppercase">Totale Complessivo</td>
+                      <td className="px-6 py-4 text-sm text-green-700 text-right font-bold">{formatCurrency(totals.income)}</td>
+                      <td className="px-6 py-4 text-sm text-red-700 text-right font-bold">{formatCurrency(totals.expense)}</td>
+                      <td className={cn(
+                        "px-6 py-4 text-sm text-right font-black",
+                        totals.balance >= 0 ? 'text-blue-700' : 'text-red-700'
+                      )}>
+                        {formatCurrency(totals.balance)}
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>

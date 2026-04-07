@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { AppLayout } from '@/components/AppLayout'
 import { Button } from '@/components/Button'
 import { TransactionForm } from '@/components/TransactionForm'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, cn } from '@/lib/utils'
 import { Plus, ArrowUpRight, ArrowDownRight, Wallet, Receipt, PieChart, Tag } from 'lucide-react'
 import Link from 'next/link'
 
